@@ -29,6 +29,7 @@ def evaluate_pose(pose_seq, exercise):
 def _bicep_curl(pose_seq):
     # find the arm that is seen most consistently
     poses = pose_seq.poses
+    #print(poses)
     right_present = [1 for pose in poses 
             if pose.rshoulder.exists and pose.relbow.exists and pose.rwrist.exists]
     left_present = [1 for pose in poses
@@ -43,6 +44,7 @@ def _bicep_curl(pose_seq):
         joints = [(pose.rshoulder, pose.relbow, pose.rwrist, pose.rhip, pose.neck) for pose in poses]
     else:
         joints = [(pose.lshoulder, pose.lelbow, pose.lwrist, pose.lhip, pose.neck) for pose in poses]
+    #print(joints)
 
     # filter out data points where a part does not exist
     joints = [joint for joint in joints if all(part.exists for part in joint)]

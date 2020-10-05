@@ -38,14 +38,19 @@ def parse_sequence(json_folder, output_folder):
     json_files = sorted(json_files)
 
     num_frames = len(json_files)
-    all_keypoints = np.zeros((num_frames, 18, 3))
+    #print('no of frames = ;',num_frames)
+    all_keypoints = np.zeros((num_frames, 25, 3))
     for i in range(num_frames):
         with open(json_files[i]) as f:
             json_obj = json.load(f)
-            keypoints = np.array(json_obj['people'][0]['pose_keypoints'])
-            all_keypoints[i] = keypoints.reshape((18, 3))
+            keypoints = np.array(json_obj['people'][0]['pose_keypoints_2d'])
+            #print(i)
+            all_keypoints[i] = keypoints.reshape((25, 3))
+    #print(all_keypoints)
     
-    output_dir = os.path.join(output_folder, os.path.basename(json_folder))
+    output_dir = os.path.join(output_folder, 'keypoints')
+    #print('output_dir',output_dir)
+    #print(os.path.basename(json_folder))
     np.save(output_dir, all_keypoints)
 
 

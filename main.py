@@ -42,14 +42,17 @@ def main():
             print('processing video file...')
             video = os.path.basename(args.video)
             
-            output_path = os.path.join('..', os.path.splitext(video)[0])
+            output_path = "./poses/"
             openpose_path = os.path.join('bin', 'OpenPoseDemo.exe')
-            os.chdir('openpose')
-            subprocess.call([openpose_path, 
-                            '--video', os.path.join('..', args.video), 
-                            '--write_keypoint_json', output_path])
-            parse_sequence(output_path, '..')
-            pose_seq = load_ps(os.path.join('..', os.path.splitext(video)[0] + '.npy'))
+            #os.chdir('openpose')
+            #subprocess.call([openpose_path, 
+            #                '--video', os.path.join('..', args.video), 
+            #                '--write_keypoint_json', output_path])
+            parse_sequence(output_path, '.')
+            pose_seq = load_ps('keypoints.npy')
+            #print('\n\n\n\n\n\n')
+            #print('pose_seq' ,pose_seq)
+            #print('\n\n\n\n\n\n')
             (correct, feedback) = evaluate_pose(pose_seq, args.exercise)
             if correct:
                 print('Exercise performed correctly!')
