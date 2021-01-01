@@ -22,6 +22,8 @@ def evaluate_pose(pose_seq, exercise):
         return _front_raise(pose_seq)
     elif exercise == 'shoulder_shrug':
         return _shoulder_shrug(pose_seq)
+    elif exercise == 'squat':
+        return _squat(pose_seq)
     else:
         return (False, "Exercise string not recognized.")
 
@@ -71,12 +73,12 @@ def _squat(pose_seq):
     correct = True
     feedback = ''
 
-    if upper_leg_torso_range > 90.0:
+    if upper_leg_torso_range > 110.0:
         correct = False
         feedback += 'Your upper arm shows significant rotation around the shoulder when curling. Try holding your upper arm still, parallel to your chest, ' + \
                     'and concentrate on rotating around your elbow only.\n'
     
-    if upper_leg_lower_leg_min > 45.0:
+    if upper_leg_lower_leg_min > 75.0:
         correct = False
         feedback += 'You are not curling the weight all the way to the top, up to your shoulders. Try to curl your arm completely so that your forearm is parallel with your torso. It may help to use lighter weight.\n'
 

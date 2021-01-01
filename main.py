@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--output_folder', type=str, default='poses', help='output folder for pose JSON')
     parser.add_argument('--video', type=str, help='input video filepath for evaluation')
     parser.add_argument('--file', type=str, help='input npy file for evaluation')
-    parser.add_argument('--exercise', type=str, default='bicep_curl', help='exercise type to evaluate')
+    parser.add_argument('--exercise', type=str, default='squat', help='exercise type to evaluate')
 
     args = parser.parse_args()
 
