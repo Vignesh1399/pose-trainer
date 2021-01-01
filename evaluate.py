@@ -26,6 +26,65 @@ def evaluate_pose(pose_seq, exercise):
         return (False, "Exercise string not recognized.")
 
 
+def _squat(pose_seq):
+    # find the arm that is seen most consistently
+    poses = pose_seq.poses
+    #print(poses)
+    right_present = [1 for pose in poses 
+            if pose.rhip.exists and pose.rknee.exists and pose.rankle.exists]
+    left_present = [1 for pose in poses
+            if pose.lhip.exists and pose.lknee.exists and pose.lankle.exists]
+    right_count = sum(right_present)
+    left_count = sum(left_present)
+    side = 'right' if right_count > left_count else 'left'
+
+    print('Exercise leg detected as: {}.'.format(side))
+
+    if side == 'right':
+        joints = [(pose.rhip, pose.rknee, pose.rankle, pose.neck) for pose in poses]
+    else:
+        joints = [(pose.lhip, pose.lknee, pose.lankle, pose.neck) for pose in poses]
+    #print(joints)
+
+    # filter out data points where a part does not exist
+    joints = [joint for joint in joints if all(part.exists for part in joint)]
+
+    upper_leg_vecs = np.array([(joint[0].x - joint[1].x, joint[0].y - joint[1].y) for joint in joints])
+    torso_vecs = np.array([(joint[3].x - joint[0].x, joint[3].y - joint[0].y) for joint in joints])
+    lower_leg_vecs = np.array([(joint[2].x - joint[1].x, joint[2].y - joint[1].y) for joint in joints])
+
+    # normalize vectors
+    upper_leg_vecs = upper_leg_vecs / np.expand_dims(np.linalg.norm(upper_leg_vecs, axis=1), axis=1)
+    torso_vecs = torso_vecs / np.expand_dims(np.linalg.norm(torso_vecs, axis=1), axis=1)
+    lower_leg_vecs = lower_leg_vecs / np.expand_dims(np.linalg.norm(lower_leg_vecs, axis=1), axis=1)
+
+    upper_leg_torso_angles = np.degrees(np.arccos(np.clip(np.sum(np.multiply(upper_leg_vecs, torso_vecs), axis=1), -1.0, 1.0)))
+    upper_leg_lower_leg_angles = np.degrees(np.arccos(np.clip(np.sum(np.multiply(upper_leg_vecs, lower_leg_vecs), axis=1), -1.0, 1.0)))
+
+    # use thresholds learned from analysis
+    upper_leg_torso_range = np.max(upper_leg_torso_angles) - np.min(upper_leg_torso_angles)
+    upper_leg_lower_leg_min = np.min(upper_leg_lower_leg_angles)
+
+    print('Upper leg and torso angle range: {}'.format(upper_leg_torso_range))
+    print('Upper leg and lower leg minimum angle: {}'.format(upper_leg_lower_leg_min))
+
+    correct = True
+    feedback = ''
+
+    if upper_leg_torso_range > 90.0:
+        correct = False
+        feedback += 'Your upper arm shows significant rotation around the shoulder when curling. Try holding your upper arm still, parallel to your chest, ' + \
+                    'and concentrate on rotating around your elbow only.\n'
+    
+    if upper_leg_lower_leg_min > 45.0:
+        correct = False
+        feedback += 'You are not curling the weight all the way to the top, up to your shoulders. Try to curl your arm completely so that your forearm is parallel with your torso. It may help to use lighter weight.\n'
+
+    if correct:
+        return (correct, 'Exercise performed correctly! Weight was lifted fully up, and upper arm did not move significantly.')
+    else:
+        return (correct, feedback)
+
 def _bicep_curl(pose_seq):
     # find the arm that is seen most consistently
     poses = pose_seq.poses
